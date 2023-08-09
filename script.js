@@ -1,10 +1,20 @@
-let minValue = parseInt(prompt('Минимальное знание числа для игры', '0')) || 0;
-minValue = Math.max(-999, Math.min(999, minValue));
+let minValue = 0;
+let maxValue = 100;
 
-let maxValue = parseInt(prompt('Максимальное знание числа для игры', '100')) || 100;
-maxValue = Math.max(-999, Math.min(999, maxValue));
+function updateMinMaxValues() {
+  const newMinValue = parseInt(document.getElementById('minValueInput').value) || 0;
+  const newMaxValue = parseInt(document.getElementById('maxValueInput').value) || 100;
 
-alert(`Загадайте любое целое число от ${minValue} до ${maxValue}, а я его угадаю`);
+  minValue = Math.max(-999, Math.min(999, newMinValue));
+  maxValue = Math.max(-999, Math.min(999, newMaxValue));
+}
+
+document.getElementById('setupBtn').addEventListener('click', function () {
+  updateMinMaxValues();
+  document.getElementById('setupCollapse').classList.remove('show');
+  resetGame();
+});
+
 function numberToWords(number) {
   const words = {
     0: "ноль", 1: "один", 2: "два", 3: "три", 4: "четыре", 5: "пять",
@@ -16,46 +26,49 @@ function numberToWords(number) {
     60: "шестьдесят", 70: "семьдесят", 80: "восемьдесят", 90: "девяносто"
   };
 
+  if (number < 0) {
+    return `минус ${numberToWords(-number)}`;
+  }
+
   if (number <= 20) {
     return words[number];
   }
-  
 
   if (number < 100) {
     const tensDigit = Math.floor(number / 10) * 10;
     const onesDigit = number % 10;
-    
+
     if (onesDigit === 0) {
       return words[tensDigit];
+    } else {
+      return `${words[tensDigit]} ${words[onesDigit]}`;
     }
-    
-    return `${words[tensDigit]} ${words[onesDigit]}`;
-  }
-  
-
-  if (number < 100) {
-    const tensDigit = Math.floor(number / 10) * 10;
-    const onesDigit = number % 10;
-    return `${words[tensDigit]} ${words[onesDigit]}`;
   }
 
-  const hundredsDigit = Math.floor(number / 100);
-  const remainder = number % 100;
+  if (number < 1000) {
+    const hundredsDigit = Math.floor(number / 100);
+    const remainder = number % 100;
 
-  if (remainder === 0) {
-    return `${words[hundredsDigit]}сот`;
+    if (remainder === 0) {
+      return `${words[hundredsDigit]}сот`;
+    }
+
+    if (remainder <= 20) {
+      return `${words[hundredsDigit]}сот ${words[remainder]}`;
+    }
+
+    const tensDigit = Math.floor(remainder / 10) * 10;
+    const onesDigit = remainder % 10;
+
+    if (onesDigit === 0) {
+      return `${words[hundredsDigit]}сот ${words[tensDigit]}`;
+    } else {
+      return `${words[hundredsDigit]}сот ${words[tensDigit]} ${words[onesDigit]}`;
+    }
   }
-
-  if (remainder <= 20) {
-    return `${words[hundredsDigit]}сот ${words[remainder]}`;
-  }
-
-  const tensDigit = Math.floor(remainder / 10) * 10;
-  const onesDigit = remainder % 10;
-  return `${words[hundredsDigit]}сот ${words[tensDigit]} ${words[onesDigit]}`;
 }
 
-let answerNumber = (Math.floor((minValue + maxValue) / 2));
+let answerNumber = Math.floor((minValue + maxValue) / 2);
 let orderNumber = 1;
 let gameRun = true;
 
@@ -64,6 +77,7 @@ const answerField = document.getElementById('answerField');
 
 orderNumberField.innerText = orderNumber;
 let answerText = answerNumber.toString();
+
 if (answerText.length <= 20) {
   answerField.innerText = `Вы загадали число ${numberToWords(answerNumber)}?`;
 } else {
@@ -71,10 +85,19 @@ if (answerText.length <= 20) {
 }
 
 document.getElementById('btnRetry').addEventListener('click', function () {
-  minValue = parseInt(prompt('Минимальное знание числа для игры', '0')) || 0;
-   minValue = Math.max(-999, Math.min(999, minValue));
-  maxValue = parseInt(prompt('Максимальное знание числа для игры', '100')) || 100;
-   maxValue = Math.max(-999, Math.min(999, maxValue));
+  function updateMinMaxValues() {
+    const newMinValue = parseInt(document.getElementById('minValueInput').value) || 0;
+    const newMaxValue = parseInt(document.getElementById('maxValueInput').value) || 100;
+  
+    minValue = Math.max(-999, Math.min(999, newMinValue));
+    maxValue = Math.max(-999, Math.min(999, newMaxValue));
+  }
+  
+  document.getElementById('setupBtn').addEventListener('click', function () {
+    updateMinMaxValues();
+    document.getElementById('setupCollapse').classList.remove('show');
+    resetGame();
+  });
   answerNumber = Math.floor((minValue + maxValue) / 2);
   orderNumber = 1;
   gameRun = true;
