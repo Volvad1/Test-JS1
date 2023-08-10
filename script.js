@@ -8,12 +8,19 @@ function updateMinMaxValues() {
   minValue = Math.max(-999, Math.min(999, newMinValue));
   maxValue = Math.max(-999, Math.min(999, newMaxValue));
 }
-
 document.getElementById('setupBtn').addEventListener('click', function () {
   updateMinMaxValues();
   document.getElementById('setupCollapse').classList.remove('show');
   resetGame();
 });
+
+function updateMinMaxValues() {
+  const newMinValue = parseInt(document.getElementById('minValueInput').value) || 0;
+  const newMaxValue = parseInt(document.getElementById('maxValueInput').value) || 100;
+
+  minValue = Math.max(-999, Math.min(999, newMinValue));
+  maxValue = Math.max(-999, Math.min(999, newMaxValue));
+}
 
 function numberToWords(number) {
   const words = {
@@ -78,11 +85,7 @@ const answerField = document.getElementById('answerField');
 orderNumberField.innerText = orderNumber;
 let answerText = answerNumber.toString();
 
-if (answerText.length <= 20) {
-  answerField.innerText = `Вы загадали число ${numberToWords(answerNumber)}?`;
-} else {
-  answerField.innerText = `Вы загадали число ${answerNumber}?`;
-}
+answerField.innerText = `Вы загадали число ${numberToWords(answerNumber)}?`;
 
 document.getElementById('btnRetry').addEventListener('click', function () {
   function updateMinMaxValues() {
@@ -143,39 +146,50 @@ if (answerText.length <= 20) {
     }
   })
   
-
 document.getElementById('btnLess').addEventListener('click', function () {
-    if (gameRun){
-        if (maxValue === minValue){
-            const phraseRandom = Math.round( Math.random());
+    if (gameRun) {
+      if (gameRun) {
+        if (maxValue <= minValue) {
+            const phraseRandom = Math.round(Math.random());
             const answerPhrase = (phraseRandom === 1) ?
                 `Вы загадали неправильное число!\n\u{1F914}` :
                 `Я сдаюсь..\n\u{1F92F}`;
 
             answerField.innerText = answerPhrase;
             gameRun = false;
-        } else {
-          const phrases = [
-            `Вы загадали число меньше, чем ${answerNumber}?`,
-            `Похоже, что ваше число меньше ${answerNumber}?`,
-            `Наверное, ваше число меньше, чем ${answerNumber}?`
-          ];
-          const randomIndex = Math.floor(Math.random() * phrases.length);
-          answerField.innerText = phrases[randomIndex];
-            maxValue = answerNumber  - 1;
-            answerNumber  = Math.floor((maxValue + minValue) / 2);
+        } else if (answerNumber - 1 >= minValue) {
+            const phrases = [
+                `Вы загадали число меньше, чем ${answerNumber}?`,
+                `Похоже, что ваше число меньше ${answerNumber}?`,
+                `Наверное, ваше число меньше, чем ${answerNumber}?`
+            ];
+            const randomIndex = Math.floor(Math.random() * phrases.length);
+            answerField.innerText = phrases[randomIndex];
+            
+            if (answerNumber - 1 >= minValue) {
+                maxValue = answerNumber - 1;
+            }
+            
+            answerNumber = Math.floor((maxValue + minValue) / 2);
             orderNumber++;
             orderNumberField.innerText = orderNumber;
+          
             let answerText = answerNumber.toString();
-if (answerText.length <= 20) {
-  answerField.innerText = `Вы загадали число ${numberToWords(answerNumber)}?`;
-} else {
-  answerField.innerText = `Вы загадали число ${answerNumber}?`;
-}
+            if (answerText.length <= 20) {
+              answerField.innerText = `Вы загадали число ${numberToWords(answerNumber)}?`;
+            }
+            else {
+              answerField.innerText = `Вы загадали число ${answerNumber}?`;
+            }
+          } else {
+            const answerPhrase = `Вы загадали неправильное число!\n\u{1F914}`;
+            answerField.innerText = answerPhrase;
+            gameRun = false;
         }
-    }
-})
+          }
 
+    }      
+});
 document.getElementById('btnEqual').addEventListener('click', function () {
     if (gameRun){
         const phrases = [
@@ -189,19 +203,32 @@ document.getElementById('btnEqual').addEventListener('click', function () {
     }
 })
 
-
 document.getElementById('btnRestart').addEventListener('click', function () {
-         minValue = parseInt(prompt('Минимальное знание числа для игры', '0')) || 0;
-         maxValue = parseInt(prompt('Максимальное знание числа для игры', '100')) || 100;
-          answerNumber = Math.floor((minValue + maxValue) / 2);
-          orderNumber = 1;
-          gameRun = true;
+  setupGame();
+});
 
-          orderNumberField.innerText = orderNumber;
-          let answerText = answerNumber.toString();
-if (answerText.length <= 20) {
-  answerField.innerText = `Вы загадали число ${numberToWords(answerNumber)}?`;
-} else {
-  answerField.innerText = `Вы загадали число ${answerNumber}?`;
+function setupGame() {
+  const newMinValue = document.getElementById('minValueInput').value;
+  const newMaxValue = document.getElementById('maxValueInput').value;
+
+  const validMinValue = isNaN(newMinValue) ? 0 : parseInt(newMinValue);
+  const validMaxValue = isNaN(newMaxValue) ? 100 : parseInt(newMaxValue);
+
+  document.getElementById('minValueInput').value = validMinValue;
+  document.getElementById('maxValueInput').value = validMaxValue;
+
+  minValue = Math.max(-999, Math.min(999, validMinValue));
+  maxValue = Math.max(-999, Math.min(999, validMaxValue));
+  answerNumber = Math.floor((minValue + maxValue) / 2);
+  orderNumber = 1;
+  gameRun = true;
+
+  orderNumberField.innerText = orderNumber;
+  let answerText = answerNumber.toString();
+  if (answerText.length <= 20) {
+      answerField.innerText = `Вы загадали число ${numberToWords(answerNumber)}?`;
+  } else {
+      answerField.innerText = `Вы загадали число ${answerNumber}?`;
+  }
 }
-})
+
